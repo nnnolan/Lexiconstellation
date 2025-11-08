@@ -1,4 +1,39 @@
 import * as THREE from 'three';
+const { ipcRenderer } = require('electron');
+const fs = require('fs');
+const path = require('path');
+
+// Load wordlist
+let wordList = [];
+let wordListLoaded = false;
+
+async function loadWordList() {
+    try {
+        const wordListPath = path.join(__dirname, 'words.txt');
+        const data = fs.readFileSync(wordListPath, 'utf-8');
+        wordList = data.split('\n')
+            .map(line => line.trim().toUpperCase())
+            .filter(word => word.length > 0 && !word.includes(';'));
+        wordListLoaded = true;
+        console.log(`Loaded ${wordList.length} words`);
+    } catch (error) {
+        console.error('Error loading wordlist:', error);
+        // Fallback: try to fetch if in browser context
+        try {
+            const response = await fetch('words.txt');
+            const data = await response.text();
+            wordList = data.split('\n')
+                .map(line => line.trim().toUpperCase())
+                .filter(word => word.length > 0 && !word.includes(';'));
+            wordListLoaded = true;
+        } catch (fetchError) {
+            console.error('Could not load wordlist:', fetchError);
+        }
+    }
+}
+
+// Load wordlist on startup
+loadWordList();
 
 // Scene setup
 const scene = new THREE.Scene();
@@ -145,28 +180,259 @@ function hideTool() {
 window.showTool = showTool;
 window.hideTool = hideTool;
 
-// Placeholder search functions
-function searchScrambled() {
-    const input = document.getElementById('scrambled-input').value.toUpperCase();
-    const resultsDiv = document.getElementById('scrambled-results');
-    resultsDiv.innerHTML = `<div class="results-title">Results for "${input}"</div><div class="results-list">Coming soon...</div>`;
+// Helper function to check if a substring is an anagram of target
+function isAnagram(str1, str2) {
+    if (str1.length !== str2.length) return false;
+    const sorted1 = str1.split('').sort().join('');
+    const sorted2 = str2.split('').sort().join('');
+    return sorted1 === sorted2;
 }
 
+// Helper function to check if word contains scrambled substring
+function hasScrambledSubstring(word, target) {
+    const tlen = target.length;
+    const targetSorted = target.split('').sort().join('');
+    
+    for (let i = 0; i <= word.length - tlen; i++) {
+        const sub = word.substring(i, i + tlen);
+        const subSorted = sub.split('').sort().join('');
+        if (subSorted === targetSorted) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Helper function to find the position of scrambled substring in word
+function findScrambledPosition(word, target) {
+    const tlen = target.length;
+    const targetSorted = target.split('').sort().join('');
+    
+    for (let i = 0; i <= word.length - tlen; i++) {
+        const sub = word.substring(i, i + tlen);
+        const subSorted = sub.split('').sort().join('');
+        if (subSorted === targetSorted) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// Rebus Finder: Find words containing input word in the center (not at start/end)
 function searchRebus() {
-    const input = document.getElementById('rebus-input').value.toUpperCase();
+    const input = document.getElementById('rebus-input').value.trim().toUpperCase();
     const resultsDiv = document.getElementById('rebus-results');
-    resultsDiv.innerHTML = `<div class="results-title">Results for "${input}"</div><div class="results-list">Coming soon...</div>`;
+    
+    if (!input) {
+        resultsDiv.innerHTML = '<div class="results-title">Please enter a word</div>';
+        return;
+    }
+    
+    if (!wordListLoaded) {
+        resultsDiv.innerHTML = '<div class="results-title">Loading wordlist...</div>';
+        setTimeout(() => searchRebus(), 500);
+        return;
+    }
+    
+    const matches = [];
+    const inputLen = input.length;
+    
+    for (const word of wordList) {
+        if (word.length > inputLen) {
+            // Find all positions where input appears
+            let pos = word.indexOf(input);
+            while (pos !== -1) {
+                // Check if it's in the center (not at start or end)
+                if (pos > 0 && pos + inputLen < word.length) {
+                    matches.push({
+                        word: word,
+                        position: pos
+                    });
+                    break; // Only add once per word
+                }
+                pos = word.indexOf(input, pos + 1);
+            }
+        }
+    }
+    
+    // Sort by word length, then alphabetically
+    matches.sort((a, b) => {
+        if (a.word.length !== b.word.length) {
+            return a.word.length - b.word.length;
+        }
+        return a.word.localeCompare(b.word);
+    });
+    
+    displayResults(resultsDiv, matches.slice(0, 500), input, 'rebus'); // Limit to 500 results
 }
 
+// Scrambled Substring Finder
+function searchScrambled() {
+    const input = document.getElementById('scrambled-input').value.trim().toUpperCase();
+    const resultsDiv = document.getElementById('scrambled-results');
+    
+    if (!input) {
+        resultsDiv.innerHTML = '<div class="results-title">Please enter letters</div>';
+        return;
+    }
+    
+    if (!wordListLoaded) {
+        resultsDiv.innerHTML = '<div class="results-title">Loading wordlist...</div>';
+        setTimeout(() => searchScrambled(), 500);
+        return;
+    }
+    
+    const matches = [];
+    
+    for (const word of wordList) {
+        if (hasScrambledSubstring(word, input)) {
+            const position = findScrambledPosition(word, input);
+            const foundSubstring = word.substring(position, position + input.length);
+            
+            // Only add if the substring is actually scrambled (different from input)
+            if (foundSubstring !== input) {
+                matches.push({
+                    word: word,
+                    position: position,
+                    length: input.length
+                });
+            }
+        }
+    }
+    
+    // Sort by word length, then alphabetically
+    matches.sort((a, b) => {
+        if (a.word.length !== b.word.length) {
+            return a.word.length - b.word.length;
+        }
+        return a.word.localeCompare(b.word);
+    });
+    
+    displayResults(resultsDiv, matches.slice(0, 500), input, 'scrambled');
+}
+
+// Helper function to check if a word can be formed from available letters
+function canFormWord(word, availableLetters) {
+    const wordLetters = word.split('');
+    const availableCount = {};
+    
+    // Count available letters
+    for (const letter of availableLetters) {
+        availableCount[letter] = (availableCount[letter] || 0) + 1;
+    }
+    
+    // Check if we can form the word
+    for (const letter of wordLetters) {
+        if (!availableCount[letter] || availableCount[letter] === 0) {
+            return false;
+        }
+        availableCount[letter]--;
+    }
+    
+    return true;
+}
+
+// Anagram Solver - finds all words that can be formed from input letters (3+ letters)
 function searchAnagram() {
-    const input = document.getElementById('anagram-input').value.toUpperCase();
+    const input = document.getElementById('anagram-input').value.trim().toUpperCase();
     const resultsDiv = document.getElementById('anagram-results');
-    resultsDiv.innerHTML = `<div class="results-title">Results for "${input}"</div><div class="results-list">Coming soon...</div>`;
+    
+    if (!input) {
+        resultsDiv.innerHTML = '<div class="results-title">Please enter a word</div>';
+        return;
+    }
+    
+    if (input.length < 3) {
+        resultsDiv.innerHTML = '<div class="results-title">Please enter at least 3 letters</div>';
+        return;
+    }
+    
+    if (!wordListLoaded) {
+        resultsDiv.innerHTML = '<div class="results-title">Loading wordlist...</div>';
+        setTimeout(() => searchAnagram(), 500);
+        return;
+    }
+    
+    const matches = [];
+    const inputLetters = input.split('').sort().join('');
+    
+    for (const word of wordList) {
+        // Only check words between 3 letters and input length
+        if (word.length >= 3 && word.length <= input.length && word !== input) {
+            // Check if word can be formed from input letters
+            if (canFormWord(word, input)) {
+                matches.push(word);
+            }
+        }
+    }
+    
+    // Sort by length first, then alphabetically
+    matches.sort((a, b) => {
+        if (a.length !== b.length) {
+            return b.length - a.length; // Longer words first
+        }
+        return a.localeCompare(b);
+    });
+    
+    displayResults(resultsDiv, matches.slice(0, 500), input, 'anagram');
+}
+// Helper function to calculate dynamic font size based on word length
+function getFontSize(word, maxLength = 12, baseSize = 0.9, minSize = 0.6) {
+    if (word.length <= maxLength) {
+        return `${baseSize}rem`;
+    }
+    // Scale down font size for longer words
+    const scaleFactor = maxLength / word.length;
+    const fontSize = Math.max(minSize, baseSize * scaleFactor);
+    return `${fontSize}rem`;
+}
+// Display results with highlighting
+function displayResults(resultsDiv, matches, input, type) {
+    if (matches.length === 0) {
+        resultsDiv.innerHTML = `<div class="results-title">No results found for "${input}"</div>`;
+        return;
+    }
+    
+    let html = `<div class="results-title">Found ${matches.length} result${matches.length !== 1 ? 's' : ''} for "${input}"</div><div class="results-list">`;
+    
+    matches.forEach(match => {
+        let word, displayWord;
+        
+        if (type === 'rebus') {
+            word = match.word;
+            const pos = match.position;
+            const before = word.substring(0, pos);
+            const found = word.substring(pos, pos + input.length);
+            const after = word.substring(pos + input.length);
+            displayWord = `${before}<span style="color: #6496ff; font-weight: 500;">${found}</span>${after}`;
+        } else if (type === 'scrambled') {
+            word = match.word;
+            const pos = match.position;
+            const len = match.length;
+            const before = word.substring(0, pos);
+            const found = word.substring(pos, pos + len);
+            const after = word.substring(pos + len);
+            displayWord = `${before}<span style="color: #6496ff; font-weight: 500;">${found}</span>${after}`;
+        } else {
+            word = match;
+            displayWord = word;
+        }
+        
+        // Calculate dynamic font size based on word length
+        const fontSize = getFontSize(word, 12, 0.9, 0.5);
+        
+        html += `<div class="result-item" style="font-size: ${fontSize};">${displayWord}</div>`;
+    });
+    
+    html += '</div>';
+    resultsDiv.innerHTML = html;
 }
 
+// Make functions global
 window.searchScrambled = searchScrambled;
 window.searchRebus = searchRebus;
 window.searchAnagram = searchAnagram;
+
 
 // Mouse interaction
 let hoveredStar = null;
@@ -263,6 +529,19 @@ window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Add Enter key support
+document.getElementById('scrambled-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchScrambled();
+});
+
+document.getElementById('rebus-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchRebus();
+});
+
+document.getElementById('anagram-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') searchAnagram();
 });
 
 animate();
