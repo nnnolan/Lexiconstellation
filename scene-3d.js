@@ -189,7 +189,7 @@ const stars = new THREE.Points(starsGeometry, starsMaterial);
 scene.add(stars);
 
 // Create text rings around Earth with interactive hover effects
-const menuItems = ['WORD FINDER', 'PATTERN MATCHER', 'AI CLUE GENERATOR', 'WORD EXPLORER'];
+const menuItems = ['WORD TOOLS', 'PATTERN MATCHER', 'AI CLUE GENERATOR', 'WORD EXPLORER'];
 const textObjects = [];
 const textRadius = 220;
 
@@ -392,9 +392,9 @@ function onMouseClick(event) {
         // Navigate based on menu item
         if (menuItem === 'AI CLUE GENERATOR') {
             window.location.href = 'clue-generator.html';
-        } else if (menuItem === 'WORD FINDER') {
+        } else if (menuItem === 'WORD TOOLS') {
             // Add navigation for other menu items when ready
-            console.log('Word Finder - coming soon');
+            window.location.href='word-tools.html';
         } else if (menuItem === 'PATTERN MATCHER') {
             console.log('Pattern Matcher - coming soon');
         } else if (menuItem === 'WORD EXPLORER') {
