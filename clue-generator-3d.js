@@ -336,7 +336,7 @@ async function generateClue() {
     }
 }
 async function callGeminiAPI(word, difficulty, misdirection) {
-    const API_KEY = 'AIzaSyDgaUxG3xT_A1bWO7pmJ0a4azsOMRlTzLs';
+    const API_KEY = process.env.GEMINI_API_KEY;
     // Use gemini-2.5-flash as shown in your example
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
     
@@ -347,7 +347,12 @@ Requirements:
 ${misdirection ? '- Include misdirection or wordplay (make it tricky!)' : '- Be straightforward and clear'}
 - Clue should be concise (under 80 characters)
 - Make it engaging and creative
-- Return ONLY the clue text, no explanations or numbering`;
+- Return ONLY the clue text, no explanations or numbering
+- Be creative and unique, but not too obscure, unless the difficulty warrants it to be more obscure
+- Use past tense if the word is a verb, present tense if it is a noun, and past participle if it is a verb ending in -ed or -ing
+- Same with plural nouns, use plural verbs and adjectives
+- Don't use the word itself in the clue
+- Feel free to refrence any form of media, celebrities,culture, history, whatever you seem fit, again bearing in mind the difficulty of the word and request.`;
 
     const response = await fetch(API_URL, {
         method: 'POST',

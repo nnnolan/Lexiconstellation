@@ -1,6 +1,9 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 
+// Load environment variables from .env file
+require('dotenv').config();
+
 function createWindow() {
   const win = new BrowserWindow({
     width: 1200,
