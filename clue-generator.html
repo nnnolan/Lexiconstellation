@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Clue Generator - Lexiconstellation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            background: #000011;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* Animated starfield background */
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20% 30%, white, transparent),
+                radial-gradient(2px 2px at 60% 70%, white, transparent),
+                radial-gradient(1px 1px at 50% 50%, white, transparent),
+                radial-gradient(1px 1px at 80% 10%, white, transparent);
+            background-repeat: repeat;
+            background-size: 200px 200px;
+            animation: sparkle 3s linear infinite;
+            opacity: 0.6;
+            z-index: 0;
+        }
+        
+        @keyframes sparkle {
+            from { transform: translateY(0); }
+            to { transform: translateY(-200px); }
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            align-items: center;
+            z-index: 100;
+            background: rgba(0, 0, 17, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 25px 40px;
+        }
+        
+        .difficulty-group {
+            display: flex;
+            gap: 25px;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .radio-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .radio-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #6496ff;
+        }
+        
+        .radio-option label {
+            font-size: 0.95rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            font-weight: 300;
+        }
+        
+        .misdirection-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 15px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .misdirection-group:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .misdirection-group input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            accent-color: #6496ff;
+        }
+        
+        .misdirection-group label {
+            font-size: 0.95rem;
+            letter-spacing: 0.15em;
+            font-weight: 300;
+        }
+        
+        .generate-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #6496ff, #4a90e2);
+            border: none;
+            border-radius: 30px;
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(100, 150, 255, 0.3);
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(100, 150, 255, 0.5);
+            background: linear-gradient(135deg, #7aa8ff, #5ba0f2);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .back-btn {
+            position: absolute;
+            top: 25px;
+            left: 25px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateX(-3px);
+        }
+        
+        .result-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            background: rgba(0, 0, 17, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            padding: 40px;
+            max-width: 650px;
+            max-height: 75vh;
+            overflow-y: auto;
+            z-index: 200;
+            display: none;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+        
+        .result-panel.visible {
+            display: block;
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        .result-panel h2 {
+            font-size: 1.8rem;
+            margin-bottom: 25px;
+            letter-spacing: 0.2em;
+            font-weight: 300;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff, #6496ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .clue-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .clue-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(100, 150, 255, 0.5);
+            transform: translateX(5px);
+        }
+        
+        .clue-item p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .clue-item p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .clue-item strong {
+            color: #6496ff;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+        }
+        
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 107, 107, 0.3);
+            border-color: rgba(255, 107, 107, 0.5);
+            transform: rotate(90deg);
+        }
+        
+        /* Scrollbar styling */
+        .result-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .result-panel::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .result-panel::-webkit-scrollbar-thumb {
+            background: rgba(100, 150, 255, 0.5);
+            border-radius: 10px;
+        }
+        
+        .result-panel::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 150, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
+    
+    <div id="canvas-container"></div>
+    
+    <div class="controls">
+        <div class="difficulty-group">
+            <div class="radio-option">
+                <input type="radio" id="easy" name="difficulty" value="easy">
+                <label for="easy">Easy</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="medium" name="difficulty" value="medium" checked>
+                <label for="medium">Medium</label>
+            </div>
+            <div class="radio-option">
+                <input type="radio" id="hard" name="difficulty" value="hard">
+                <label for="hard">Hard</label>
+            </div>
+        </div>
+        
+        <div class="misdirection-group">
+            <input type="checkbox" id="misdirection">
+            <label for="misdirection">Misdirection (?)</label>
+        </div>
+        
+        <button id="generate-btn" class="generate-btn">Generate Clue</button>
+    </div>
+    
+    <div class="result-panel" id="result-panel">
+        <button class="close-btn" onclick="closeResults()">×</button>
+        <h2>Generated Clue</h2>
+        <div id="clues-container"></div>
+    </div>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+    <script type="module" src="clue-generator-3d.js"></script>
+</body>
+</html>

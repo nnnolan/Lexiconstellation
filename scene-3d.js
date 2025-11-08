@@ -381,9 +381,25 @@ function onMouseMove(event) {
 
 window.addEventListener('mousemove', onMouseMove);
 
+// Click handler
 function onMouseClick(event) {
     if (hoveredObject) {
-        console.log('Clicked:', menuItems[textObjects.indexOf(hoveredObject)]);
+        const menuIndex = textObjects.indexOf(hoveredObject);
+        const menuItem = menuItems[menuIndex];
+        
+        console.log('Clicked:', menuItem);
+        
+        // Navigate based on menu item
+        if (menuItem === 'AI CLUE GENERATOR') {
+            window.location.href = 'clue-generator.html';
+        } else if (menuItem === 'WORD FINDER') {
+            // Add navigation for other menu items when ready
+            console.log('Word Finder - coming soon');
+        } else if (menuItem === 'PATTERN MATCHER') {
+            console.log('Pattern Matcher - coming soon');
+        } else if (menuItem === 'WORD EXPLORER') {
+            console.log('Word Explorer - coming soon');
+        }
     }
 }
 
@@ -470,7 +486,6 @@ function animate() {
                     particleVelocities[particleIndex].life = particleVelocities[particleIndex].maxLife;
                     particleVelocities[particleIndex].fadeIn = 0.1;
                     particleVelocities[particleIndex].fadeOut = 0.2;
-                    spawned++;
                 }
             }
             
