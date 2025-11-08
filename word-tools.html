@@ -70,6 +70,12 @@
             background: rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.5);
             transform: translateX(-3px);
+            .tool-overlay.visible ~ .back-btn,
+            .tool-overlay.visible + .back-btn {
+                opacity: 0;
+                pointer-events: none;
+                visibility: hidden;
+            }
         }
         .star-menu {
             position: absolute;
@@ -382,11 +388,12 @@
         <div class="tool-header">
             <h2>Scrambled Substring Finder</h2>
             <p>Find words containing specific letters in any order</p>
+            <p>Example: SPACE -> POLARIC(ECAPS) </p>
         </div>
         <div class="tool-content">
             <div class="input-group">
                 <label for="scrambled-input">Enter Letters:</label>
-                <input type="text" id="scrambled-input" placeholder="e.g., BRAIN" maxlength="20">
+                <input type="text" id="scrambled-input" placeholder="..." maxlength="20">
             </div>
             <button class="search-btn" onclick="searchScrambled()">Search</button>
             <div class="results-container" id="scrambled-results"></div>
@@ -399,12 +406,12 @@
         <div class="tool-header">
             <h2>Rebus Finder</h2>
             <p>Find words with input word in the center</p>
-            <p>Example: KAT -> TON(KAT)SU</p>
+            <p>Example: STAR -> BROADCA(STAR)EA</p>
         </div>
         <div class="tool-content">
             <div class="input-group">
                 <label for="rebus-input">Enter Word or Phrase:</label>
-                <input type="text" id="rebus-input" placeholder="Enter here..." maxlength="50">
+                <input type="text" id="rebus-input" placeholder="..." maxlength="50">
             </div>
             <button class="search-btn" onclick="searchRebus()">Search</button>
             <div class="results-container" id="rebus-results"></div>
@@ -416,12 +423,12 @@
         <button class="close-tool-btn" onclick="hideTool()">← Back</button>
         <div class="tool-header">
             <h2>Anagram Solver</h2>
-            <p>Find all words of the same length that can be formed from these letters</p>
+            <p>Find all words that can be formed from input letters (3+ letters)</p>
         </div>
         <div class="tool-content">
             <div class="input-group">
                 <label for="anagram-input">Enter Word:</label>
-                <input type="text" id="anagram-input" placeholder="e.g., BRAIN" maxlength="20">
+                <input type="text" id="anagram-input" placeholder="..." maxlength="20">
             </div>
             <button class="search-btn" onclick="searchAnagram()">Search</button>
             <div class="results-container" id="anagram-results"></div>

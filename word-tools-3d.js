@@ -162,11 +162,18 @@ starPositions.forEach((pos, index) => {
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-// Tool navigation
 function showTool(toolName) {
     document.getElementById('star-menu').classList.add('hidden');
     document.getElementById('tool-overlay').classList.add('visible');
     document.getElementById(`tool-${toolName}`).classList.add('visible');
+    
+    // Hide the back button to index
+    const backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+        backBtn.style.opacity = '0';
+        backBtn.style.pointerEvents = 'none';
+        backBtn.style.visibility = 'hidden';
+    }
 }
 
 function hideTool() {
@@ -175,6 +182,14 @@ function hideTool() {
     });
     document.getElementById('tool-overlay').classList.remove('visible');
     document.getElementById('star-menu').classList.remove('hidden');
+    
+    // Show the back button to index
+    const backBtn = document.querySelector('.back-btn');
+    if (backBtn) {
+        backBtn.style.opacity = '1';
+        backBtn.style.pointerEvents = 'all';
+        backBtn.style.visibility = 'visible';
+    }
 }
 // Make functions global
 window.showTool = showTool;
@@ -435,6 +450,7 @@ window.searchAnagram = searchAnagram;
 
 
 // Mouse interaction
+// Mouse interaction
 let hoveredStar = null;
 
 function onMouseMove(event) {
@@ -442,12 +458,28 @@ function onMouseMove(event) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     
     raycaster.setFromCamera(mouse, camera);
-    const starMeshes = stars.map(s => s.star);
-    const intersects = raycaster.intersectObjects(starMeshes);
+    
+    // Check all star group elements (star, glow, ring, etc.)
+    const allStarObjects = [];
+    stars.forEach(star => {
+        allStarObjects.push(star.star);
+        allStarObjects.push(star.glow);
+        allStarObjects.push(star.midGlow);
+        allStarObjects.push(star.ring);
+        // Don't include sparkles as they're too small
+    });
+    
+    const intersects = raycaster.intersectObjects(allStarObjects);
     
     if (intersects.length > 0) {
-        const intersectedStar = intersects[0].object;
-        const starObj = stars.find(s => s.star === intersectedStar);
+        const intersectedObject = intersects[0].object;
+        // Find which star this object belongs to
+        const starObj = stars.find(s => 
+            s.star === intersectedObject || 
+            s.glow === intersectedObject || 
+            s.midGlow === intersectedObject || 
+            s.ring === intersectedObject
+        );
         
         if (hoveredStar !== starObj) {
             if (hoveredStar) {

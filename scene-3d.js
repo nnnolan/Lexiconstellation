@@ -396,7 +396,7 @@ function onMouseClick(event) {
             // Add navigation for other menu items when ready
             window.location.href='word-tools.html';
         } else if (menuItem === 'PATTERN MATCHER') {
-            console.log('Pattern Matcher - coming soon');
+            window.location.href='pattern-matcher.html';
         } else if (menuItem === 'WORD EXPLORER') {
             console.log('Word Explorer - coming soon');
         }
