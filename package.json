@@ -1,0 +1,25 @@
+{
+  "name": "lexiconstellation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron --dev ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nnnolan/Lexiconstellation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nnnolan/Lexiconstellation/issues"
+  },
+  "homepage": "https://github.com/nnnolan/Lexiconstellation#readme",
+  "devDependencies": {
+    "electron": "^39.1.1"
+  }
+}

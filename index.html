@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexiconstellation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="space-container">
+        <!-- Stars background -->
+        <div class="stars"></div>
+        <div class="stars2"></div>
+        <div class="stars3"></div>
+        
+        <!-- Title -->
+        <h1 class="title">Lexiconstellation</h1>
+        
+        <!-- Earth -->
+        <div class="earth-container">
+            <div class="earth"></div>
+            <div class="earth-glow"></div>
+        </div>
+        
+        <!-- Constellation planets/stars -->
+        <div class="constellation">
+            <div class="planet planet-1"></div>
+            <div class="planet planet-2"></div>
+            <div class="planet planet-3"></div>
+            <div class="planet planet-4"></div>
+            <div class="star star-1"></div>
+            <div class="star star-2"></div>
+            <div class="star star-3"></div>
+            <div class="star star-4"></div>
+            <div class="star star-5"></div>
+            <div class="star star-6"></div>
+        </div>
+        
+        <!-- Constellation lines (optional) -->
+        <svg class="constellation-lines" viewBox="0 0 1200 800">
+            <line x1="600" y1="400" x2="300" y2="200" class="line"/>
+            <line x1="600" y1="400" x2="900" y2="200" class="line"/>
+            <line x1="600" y1="400" x2="200" y2="500" class="line"/>
+            <line x1="600" y1="400" x2="1000" y2="500" class="line"/>
+            <line x1="300" y1="200" x2="200" y2="500" class="line"/>
+            <line x1="900" y1="200" x2="1000" y2="500" class="line"/>
+        </svg>
+    </div>
+    
+    <script src="renderer.js"></script>
+</body>
+</html>
