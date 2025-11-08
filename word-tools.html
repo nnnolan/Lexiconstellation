@@ -71,8 +71,6 @@
             border-color: rgba(255, 255, 255, 0.5);
             transform: translateX(-3px);
         }
-        
-        /* Star Menu View */
         .star-menu {
             position: absolute;
             top: 0;
@@ -82,10 +80,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: center; /* Changed from flex-start to center */
             z-index: 10;
             opacity: 1;
             transition: opacity 0.5s ease;
+        }
+        /* Overlay for tool views */
+        .tool-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 17, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 15;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .tool-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
         }
         
         .star-menu.hidden {
@@ -98,10 +115,12 @@
             font-weight: 100;
             letter-spacing: 0.3em;
             text-transform: uppercase;
-            margin-bottom: 80px;
+            margin-bottom: 80px; /* Reduced from 120px for better centering */
             text-shadow: 
                 0 0 10px rgba(255, 255, 255, 0.5),
                 0 0 20px rgba(100, 150, 255, 0.3);
+            /* move up 100px */
+            transform: translateY(-100px);
         }
         
         .stars-container {
@@ -115,13 +134,19 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
             cursor: pointer;
             transition: all 0.3s ease;
         }
         
         .star-item:hover {
             transform: scale(1.1);
+        }
+        
+        .star-canvas {
+            width: 120px;
+            height: 120px;
+            /* This is just a placeholder - actual stars are in Three.js */
         }
         
         .star-label {
@@ -132,6 +157,8 @@
             text-align: center;
             opacity: 0.8;
             transition: opacity 0.3s ease;
+            width: 200px;
+            order: -1; /* Ensure label is always on top */
         }
         
         .star-item:hover .star-label {
@@ -255,6 +282,7 @@
             letter-spacing: 0.1em;
             margin-bottom: 20px;
             font-weight: 300;
+            
         }
         
         .results-list {
@@ -324,22 +352,26 @@
     <button class="back-btn" onclick="window.location.href='index.html'">← Back</button>
     
     <div id="canvas-container"></div>
+    <div id="canvas-container"></div>
     
-    <!-- Star Menu -->
+    <!-- Overlay for tool views -->
+    <div class="tool-overlay" id="tool-overlay"></div>
+    
+    <!-- Star Menu --> 
     <div class="star-menu" id="star-menu">
         <h1>Word Tools</h1>
         <div class="stars-container">
             <div class="star-item" onclick="showTool('scrambled')">
-                <div id="star-1" class="star-canvas"></div>
                 <div class="star-label">Scrambled<br>Substring</div>
+                <div id="star-1" class="star-canvas"></div>
             </div>
             <div class="star-item" onclick="showTool('rebus')">
-                <div id="star-2" class="star-canvas"></div>
                 <div class="star-label">Rebus<br>Finder</div>
+                <div id="star-2" class="star-canvas"></div>
             </div>
             <div class="star-item" onclick="showTool('anagram')">
-                <div id="star-3" class="star-canvas"></div>
                 <div class="star-label">Anagram<br>Solver</div>
+                <div id="star-3" class="star-canvas"></div>
             </div>
         </div>
     </div>
@@ -366,12 +398,13 @@
         <button class="close-tool-btn" onclick="hideTool()">← Back</button>
         <div class="tool-header">
             <h2>Rebus Finder</h2>
-            <p>Find words that can represent other words through rebus patterns</p>
+            <p>Find words with input word in the center</p>
+            <p>Example: KAT -> TON(KAT)SU</p>
         </div>
         <div class="tool-content">
             <div class="input-group">
                 <label for="rebus-input">Enter Word or Phrase:</label>
-                <input type="text" id="rebus-input" placeholder="e.g., I C U" maxlength="50">
+                <input type="text" id="rebus-input" placeholder="Enter here..." maxlength="50">
             </div>
             <button class="search-btn" onclick="searchRebus()">Search</button>
             <div class="results-container" id="rebus-results"></div>
