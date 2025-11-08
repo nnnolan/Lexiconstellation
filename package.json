@@ -21,5 +21,8 @@
   "homepage": "https://github.com/nnnolan/Lexiconstellation#readme",
   "devDependencies": {
     "electron": "^39.1.1"
+  },
+  "dependencies": {
+    "@google/genai": "^1.29.0"
   }
 }
