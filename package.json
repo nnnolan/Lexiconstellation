@@ -2,11 +2,12 @@
   "name": "lexiconstellation",
   "productName": "Lexiconstellation",
   "version": "1.0.0",
-  "description": "",
+  "description": "A beautiful 3D desktop application for crossword constructors and word enthusiasts",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron --dev ."
+    "dev": "electron --dev .",
+    "build": "electron-builder"
   },
   "repository": {
     "type": "git",
@@ -21,10 +22,17 @@
   },
   "homepage": "https://github.com/nnnolan/Lexiconstellation#readme",
   "devDependencies": {
-    "electron": "^39.1.1"
+    "electron": "^39.1.1",
+    "electron-builder": "^26.0.12"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
     "dotenv": "^17.2.3"
+  },
+  "build": {
+    "appId": "com.nolanpestano.lexiconstellation",
+    "mac": {
+      "target": "dmg"
+    }
   }
 }
