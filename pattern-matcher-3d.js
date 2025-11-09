@@ -303,6 +303,12 @@ function searchPattern() {
     const resultsTitle = document.getElementById('results-title');
     const resultPanel = document.getElementById('result-panel');
     
+    // Check minimum length requirement
+    if (patternLength < 5) {
+        alert('Pattern must be at least 5 letters long.');
+        return;
+    }
+    
     if (!wordListLoaded) {
         resultsTitle.textContent = 'Loading wordlist...';
         resultPanel.classList.add('visible');
@@ -315,7 +321,6 @@ function searchPattern() {
         resultPanel.classList.add('visible');
         return;
     }
-    
     const matches = [];
     for (const word of wordList) {
         if (matchesPattern(word, currentPattern, patternLength)) {

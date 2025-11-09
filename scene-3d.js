@@ -189,7 +189,7 @@ const stars = new THREE.Points(starsGeometry, starsMaterial);
 scene.add(stars);
 
 // Create text rings around Earth with interactive hover effects
-const menuItems = ['WORD TOOLS', 'PATTERN MATCHER', 'AI CLUE GENERATOR', 'WORD EXPLORER'];
+const menuItems = ['WORD TOOLS', 'PATTERN MATCHER', 'AI CLUE GENERATOR', 'WORD GALAXY'];
 const textObjects = [];
 const textRadius = 220;
 
@@ -227,22 +227,23 @@ particleCanvas.width = 64;
 particleCanvas.height = 64;
 const particleCtx = particleCanvas.getContext('2d');
 const particleGradient = particleCtx.createRadialGradient(32, 32, 0, 32, 32, 32);
-particleGradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-particleGradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.8)');
-particleGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+particleGradient.addColorStop(0, 'rgba(100, 150, 255, 1)'); // Blue center
+particleGradient.addColorStop(0.3, 'rgba(100, 150, 255, 0.9)');
+particleGradient.addColorStop(1, 'rgba(100, 150, 255, 0)'); // Blue fade
 particleCtx.fillStyle = particleGradient;
 particleCtx.fillRect(0, 0, 64, 64);
 const particleTexture = new THREE.CanvasTexture(particleCanvas);
 
 const particleMaterial = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 12, // Increased from 8
+    color: 0x6496ff, // Blue to match theme and be more visible
+    size: 30, // Larger size for better visibility
     transparent: true,
     opacity: 1,
     blending: THREE.AdditiveBlending,
     map: particleTexture,
     sizeAttenuation: true,
-    depthWrite: false // Important for additive blending
+    depthWrite: false,
+    depthTest: false // Disable depth test for additive blending
 });
 
 const sparkles = new THREE.Points(particleGeometry, particleMaterial);
@@ -361,7 +362,7 @@ function onMouseMove(event) {
             textObj.targetOpacity = 1.0;
             textObj.glowIntensity = 1.0;
             textObj.particleSource = textObj.sprite.position.clone();
-            textObj.particlesTriggered = true;
+            textObj.lastParticleSpawn = 0;
             
             document.body.style.cursor = 'pointer';
         }
@@ -397,8 +398,8 @@ function onMouseClick(event) {
             window.location.href='word-tools.html';
         } else if (menuItem === 'PATTERN MATCHER') {
             window.location.href='pattern-matcher.html';
-        } else if (menuItem === 'WORD EXPLORER') {
-            console.log('Word Explorer - coming soon');
+        } else if (menuItem === 'WORD GALAXY') {
+            window.location.href='word-galaxy.html';
         }
     }
 }
@@ -451,52 +452,62 @@ function animate() {
             textObj.glowSprite.lookAt(camera.position);
         }
         
-        // Create particle burst when hovered (only once)
-        if (textObj.hovered && textObj.particleSource && textObj.particlesTriggered) {
-            const burstCount = 20;
-            const cloudRadius = 25;
-            
-            for (let i = 0; i < burstCount; i++) {
-                let particleIndex = -1;
-                for (let j = 0; j < particleCount; j++) {
-                    if (particleVelocities[j].life <= 0) {
-                        particleIndex = j;
-                        break;
+         // Create particle burst when hovered (continuous while hovering)
+         if (textObj.hovered) {
+            // Spawn particles continuously while hovering (every 100ms)
+            const now = Date.now();
+            if (!textObj.lastParticleSpawn || now - textObj.lastParticleSpawn > 100) {
+                const burstCount = 5;
+                const cloudRadius = 30;
+                
+                for (let i = 0; i < burstCount; i++) {
+                    // Find available particle slot
+                    let particleIndex = -1;
+                    for (let j = 0; j < particleCount; j++) {
+                        if (particleVelocities[j].life <= 0) {
+                            particleIndex = j;
+                            break;
+                        }
+                    }
+                    
+                    
+                    if (particleIndex >= 0) {
+                        // Get current sprite position
+                        const sourcePos = textObj.sprite.position;
+                        const theta = Math.random() * Math.PI * 2;
+                        const phi = Math.acos(Math.random() * 2 - 1);
+                        const radius = Math.random() * cloudRadius;
+                        
+                        // Set particle position
+                        particlePositions[particleIndex * 3] = sourcePos.x + radius * Math.sin(phi) * Math.cos(theta);
+                        particlePositions[particleIndex * 3 + 1] = sourcePos.y + radius * Math.sin(phi) * Math.sin(theta);
+                        particlePositions[particleIndex * 3 + 2] = sourcePos.z + radius * Math.cos(phi);
+                        
+                        // Set particle velocity
+                        const speed = 0.3 + Math.random() * 0.4;
+                        const velTheta = Math.random() * Math.PI * 2;
+                        const velPhi = Math.acos(Math.random() * 2 - 1);
+                        
+                        particleVelocities[particleIndex].x = speed * Math.sin(velPhi) * Math.cos(velTheta);
+                        particleVelocities[particleIndex].y = speed * Math.sin(velPhi) * Math.sin(velTheta);
+                        particleVelocities[particleIndex].z = speed * Math.cos(velPhi);
+                        
+                        // Set particle life
+                        particleVelocities[particleIndex].maxLife = 0.6 + Math.random() * 0.4;
+                        particleVelocities[particleIndex].life = particleVelocities[particleIndex].maxLife;
+                        particleVelocities[particleIndex].fadeIn = 0.05;
+                        particleVelocities[particleIndex].fadeOut = 0.3;
                     }
                 }
                 
-                if (particleIndex >= 0) {
-                    const sourcePos = textObj.sprite.position;
-                    const theta = Math.random() * Math.PI * 2;
-                    const phi = Math.acos(Math.random() * 2 - 1);
-                    const radius = Math.random() * cloudRadius;
-                    
-                    particlePositions[particleIndex * 3] = sourcePos.x + radius * Math.sin(phi) * Math.cos(theta);
-                    particlePositions[particleIndex * 3 + 1] = sourcePos.y + radius * Math.sin(phi) * Math.sin(theta);
-                    particlePositions[particleIndex * 3 + 2] = sourcePos.z + radius * Math.cos(phi);
-                    
-                    const speed = 0.2 + Math.random() * 0.3;
-                    const velTheta = Math.random() * Math.PI * 2;
-                    const velPhi = Math.acos(Math.random() * 2 - 1);
-                    
-                    particleVelocities[particleIndex].x = speed * Math.sin(velPhi) * Math.cos(velTheta);
-                    particleVelocities[particleIndex].y = speed * Math.sin(velPhi) * Math.sin(velTheta);
-                    particleVelocities[particleIndex].z = speed * Math.cos(velPhi);
-                    particleVelocities[particleIndex].maxLife = 0.5 + Math.random() * 0.3;
-                    particleVelocities[particleIndex].life = particleVelocities[particleIndex].maxLife;
-                    particleVelocities[particleIndex].fadeIn = 0.1;
-                    particleVelocities[particleIndex].fadeOut = 0.2;
-                }
+                textObj.lastParticleSpawn = now;
             }
-            
-            textObj.particlesTriggered = false;
         }
     });
     
     // Animate particles
     let activeParticles = 0;
-    let maxOpacity = 0;
-    
+
     for (let i = 0; i < particleCount; i++) {
         if (particleVelocities[i].life > 0) {
             activeParticles++;
@@ -504,22 +515,12 @@ function animate() {
             particlePositions[i * 3 + 1] += particleVelocities[i].y;
             particlePositions[i * 3 + 2] += particleVelocities[i].z;
             
-            particleVelocities[i].life -= 0.08; // Slightly slower fade
+            particleVelocities[i].life -= 0.016; // Match frame rate (60fps = 0.016 per frame)
             
-            let opacity = 0;
-            const fadeInEnd = particleVelocities[i].fadeIn;
-            const fadeOutStart = particleVelocities[i].maxLife - particleVelocities[i].fadeOut;
-            const currentLife = particleVelocities[i].life;
-            
-            if (currentLife > fadeOutStart) {
-                opacity = (currentLife - fadeOutStart) / particleVelocities[i].fadeOut;
-            } else if (currentLife < fadeInEnd) {
-                opacity = currentLife / fadeInEnd;
-            } else {
-                opacity = 1.0;
+            // Ensure particles stay visible
+            if (particleVelocities[i].life <= 0) {
+                particleVelocities[i].life = 0;
             }
-            
-            if (opacity > maxOpacity) maxOpacity = opacity;
             
             particleVelocities[i].x *= 0.98;
             particleVelocities[i].y *= 0.98;
@@ -532,9 +533,9 @@ function animate() {
     }
     
     particleGeometry.attributes.position.needsUpdate = true;
-    // Keep material visible when particles are active
-    particleMaterial.opacity = activeParticles > 0 ? 1.0 : 0;
-    
+    // Keep material visible when particles are active - use higher opacity
+    sparkles.material.opacity = activeParticles > 0 ? 1.0 : 0;
+    sparkles.material.visible = activeParticles > 0;
     // Debug: uncomment to see if particles are spawning
     if (activeParticles > 0) console.log('Active particles:', activeParticles);
     
