@@ -2,7 +2,7 @@
 
 A beautiful 3D desktop application for crossword constructors and word enthusiasts. Explore words through immersive 3D visualizations, pattern matching, and AI-powered clue generation.
 
-** MacOS build[here](https://drive.google.com/file/d/1HOOqU4ulPn_79AiRjY5CJmQ9Pz3VioEL/view?usp=sharing)  **
+***MacOS build [here](https://drive.google.com/file/d/1HOOqU4ulPn_79AiRjY5CJmQ9Pz3VioEL/view?usp=sharing).***
 
 ## 🚀 About
 
