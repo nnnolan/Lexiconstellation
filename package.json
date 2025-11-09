@@ -1,5 +1,6 @@
 {
   "name": "lexiconstellation",
+  "productName": "Lexiconstellation",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -12,7 +13,7 @@
     "url": "git+https://github.com/nnnolan/Lexiconstellation.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nolan Pestano",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {

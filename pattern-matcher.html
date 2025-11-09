@@ -306,8 +306,9 @@
     
     <div class="controls">
         <div class="instructions">
-            <p>Enter letters to match. Empty positions are wildcards (<span class="wildcard-example">?</span>).</p>
-            <p class="example">Example: "C?T" finds CAT, CUT, COT, etc.</p>
+            <p>Enter letters to match. Empty positions are wildcards (<span class="wildcard-example">?</span>). </p>
+            <p>Words <5 letters are not allowed are formatted to 5 letters.</p>
+            <p class="example">Example: "C?T??" finds CATAN, CATER, CUTER, etc.</p>
         </div>
         <div class="word-length" id="word-length">Word Length: 5</div>
         <input type="text" class="pattern-input" id="pattern-input" placeholder="e.g., C?T or CAT" maxlength="20" autocomplete="off">        <button class="enter-btn" onclick="searchPattern()">Enter</button>

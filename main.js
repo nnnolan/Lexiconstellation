@@ -19,6 +19,21 @@ function createWindow() {
 
   win.loadFile('index.html');
   
+  // Handle external links - open in default browser
+  win.webContents.on('new-window', function(e, url) {
+    e.preventDefault();
+    require('electron').shell.openExternal(url);
+  });
+  
+  // Also handle will-navigate for same-window navigation to external URLs
+  win.webContents.on('will-navigate', function(e, url) {
+    // Only prevent navigation if it's an external URL (not a local file)
+    if (!url.startsWith('file://') && url !== win.webContents.getURL()) {
+      e.preventDefault();
+      require('electron').shell.openExternal(url);
+    }
+  });
+  
   // Open DevTools in development
   if (process.argv.includes('--dev')) {
     win.webContents.openDevTools();

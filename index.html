@@ -75,11 +75,33 @@
             color: rgba(100, 150, 255, 1);
             text-shadow: 0 0 12px rgba(100, 150, 255, 0.8);
         }
+        
+        .about-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            z-index: 100;
+            transition: all 0.3s ease;
+            pointer-events: all;
+        }
+        
+        .about-button:hover {
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
     <h1 class="title">Lexiconstellation</h1>
     <div id="canvas-container"></div>
+    <a href="about.html" class="about-button">About</a>
     
     <script type="importmap">
         {
