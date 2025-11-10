@@ -12,22 +12,15 @@ exports.api = onRequest(
   async (req, res) => {
     // Handle CORS preflight
     cors(req, res, async () => {
-      // Check if this is the generate-clue endpoint
-      const url = new URL(req.url, `http://${req.headers.host}`);
-      const isGenerateClue = url.pathname.includes('/generate-clue') || req.body.word;
-
       // Only allow POST requests to /api/generate-clue
-      if (req.method !== 'POST' || !isGenerateClue) {
+      if (req.method !== 'POST' || !req.path.includes('/generate-clue')) {
         return res.status(404).json({ error: 'Not found' });
       }
 
       const { word, difficulty, misdirection } = req.body;
-      
-      // Get API key from Firebase config or environment
       const API_KEY = functions.config().gemini?.api_key || process.env.GEMINI_API_KEY;
 
       if (!API_KEY) {
-        console.error('API key not configured');
         return res.status(500).json({ error: 'API key not configured' });
       }
 
@@ -56,8 +49,6 @@ ${misdirection ? '- Include misdirection or wordplay (make it tricky!)' : '- Be 
         });
 
         if (!response.ok) {
-          const errorText = await response.text();
-          console.error('Gemini API error:', response.status, errorText);
           throw new Error(`Gemini API error: ${response.status}`);
         }
 
@@ -65,7 +56,6 @@ ${misdirection ? '- Include misdirection or wordplay (make it tricky!)' : '- Be 
         if (data.candidates && data.candidates[0] && data.candidates[0].content) {
           return res.json({ clue: data.candidates[0].content.parts[0].text.trim() });
         } else {
-          console.error('Unexpected API response:', data);
           return res.status(500).json({ error: 'Unexpected API response' });
         }
       } catch (error) {
