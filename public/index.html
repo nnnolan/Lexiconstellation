@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexiconstellation - 3D</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica', Arial, sans-serif;
+            overflow: hidden;
+            background: #000011;
+            color: white;
+        }
+        
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        .title {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            font-weight: 100;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.5),
+                0 0 20px rgba(100, 150, 255, 0.3),
+                0 0 30px rgba(100, 150, 255, 0.2);
+            z-index: 100;
+            pointer-events: none;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes titleGlow {
+            from {
+                text-shadow: 
+                    0 0 10px rgba(255, 255, 255, 0.5),
+                    0 0 20px rgba(100, 150, 255, 0.3),
+                    0 0 30px rgba(100, 150, 255, 0.2);
+            }
+            to {
+                text-shadow: 
+                    0 0 15px rgba(255, 255, 255, 0.7),
+                    0 0 30px rgba(100, 150, 255, 0.5),
+                    0 0 45px rgba(100, 150, 255, 0.3);
+            }
+        }
+        
+        .menu-text {
+            position: absolute;
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            cursor: pointer;
+            pointer-events: all;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+        }
+        
+        .menu-text:hover {
+            color: rgba(100, 150, 255, 1);
+            text-shadow: 0 0 12px rgba(100, 150, 255, 0.8);
+        }
+        
+        .about-button {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            z-index: 100;
+            transition: all 0.3s ease;
+            pointer-events: all;
+        }
+        
+        .about-button:hover {
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">Lexiconstellation</h1>
+    <div id="canvas-container"></div>
+    <a href="about.html" class="about-button">About</a>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="scene-3d.js"></script>
+</body>
+</html>
