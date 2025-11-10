@@ -234,18 +234,22 @@
                     const url = this.getAttribute('href');
                     
                     // Check if we're in an Electron environment
-                    if (typeof require !== 'undefined') {
-                        try {
-                            const { shell } = require('electron');
-                            shell.openExternal(url);
-                        } catch (err) {
-                            // Fallback to window.open if Electron API is not available
+                    // OLD:
+                    // if (typeof require !== 'undefined') {
+                    //     try {
+                    //         const { shell } = require('electron');
+                    //         shell.openExternal(url);
+                    //     }
+
+                    // NEW:
+                    // Just use window.open for web
+                    externalLinks.forEach(link => {
+                        link.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            const url = this.getAttribute('href');
                             window.open(url, '_blank');
-                        }
-                    } else {
-                        // Fallback for non-Electron environments
-                        window.open(url, '_blank');
-                    }
+                        });
+                    });
                 });
             });
         });

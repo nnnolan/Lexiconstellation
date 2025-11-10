@@ -31,20 +31,28 @@ pointLight2.position.set(-500, -500, -500);
 scene.add(pointLight2);
 
 // Word data
-const fs = require('fs');
-const path = require('path');
+// Word data
+// REMOVED: const fs = require('fs');
+// REMOVED: const path = require('path');
 let wordList = [];
 let wordNodes = [];
 let connections = [];
 let selectedWord = null;
 let allWordsLoaded = []; // Store all loaded words
 
-// Load wordlist
+// Load wordlist - WEB VERSION
 async function loadWordList() {
     try {
-        const wordListPath = path.join(__dirname, 'words.txt');
-        const data = fs.readFileSync(wordListPath, 'utf-8');
-        const allWords = data.split('\n').map(line => line.trim().toUpperCase()).filter(word => word.length > 0 && !word.includes(';'));
+        // Fetch words.txt from server instead of reading from file system
+        const response = await fetch('/words.txt');
+        if (!response.ok) {
+            throw new Error(`Failed to load wordlist: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.text();
+        const allWords = data.split('\n')
+            .map(line => line.trim().toUpperCase())
+            .filter(word => word.length > 0 && !word.includes(';'));
         
         // Filter to words 3-8 letters for performance
         allWordsLoaded = allWords.filter(word => word.length >= 3 && word.length <= 8);
@@ -62,6 +70,8 @@ async function loadWordList() {
         }, 100);
     } catch (error) {
         console.error('Error loading wordlist:', error);
+        // Optionally show user-friendly error message
+        alert('Failed to load word list. Please refresh the page.');
     }
 }
 
