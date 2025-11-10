@@ -1,38 +1,27 @@
 {
   "name": "lexiconstellation",
-  "productName": "Lexiconstellation",
   "version": "1.0.0",
-  "description": "A beautiful 3D desktop application for crossword constructors and word enthusiasts",
-  "main": "main.js",
+  "description": "A beautiful 3D web application for crossword constructors and word enthusiasts",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron --dev .",
-    "build": "electron-builder"
+    "serve": "firebase emulators:start",
+    "deploy": "firebase deploy",
+    "deploy:hosting": "firebase deploy --only hosting",
+    "deploy:functions": "firebase deploy --only functions",
+    "build": "echo 'No build step needed for static files'"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nnnolan/Lexiconstellation.git"
   },
-  "keywords": [],
+  "keywords": [
+    "crossword",
+    "word-puzzle",
+    "3d-visualization",
+    "threejs"
+  ],
   "author": "Nolan Pestano",
   "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/nnnolan/Lexiconstellation/issues"
-  },
-  "homepage": "https://github.com/nnnolan/Lexiconstellation#readme",
   "devDependencies": {
-    "electron": "^39.1.1",
-    "electron-builder": "^26.0.12"
-  },
-  "dependencies": {
-    "@google/genai": "^1.29.0",
-    "dotenv": "^17.2.3"
-  },
-  "build": {
-    "appId": "com.nolanpestano.lexiconstellation",
-    "mac": {
-      "target": "dmg"
-    }
+    "firebase-tools": "^13.0.0"
   }
 }

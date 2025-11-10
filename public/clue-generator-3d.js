@@ -336,53 +336,22 @@ async function generateClue() {
     }
 }
 async function callGeminiAPI(word, difficulty, misdirection) {
-    const API_KEY = process.env.GEMINI_API_KEY;
-    // Use gemini-2.5-flash as shown in your example
-    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-    
-    let prompt = `Generate a single, creative crossword puzzle clue for the word "${word}".
-
-Requirements:
-- Difficulty: ${difficulty}
-${misdirection ? '- Include misdirection or wordplay (make it tricky!)' : '- Be straightforward and clear'}
-- Clue should be concise (under 80 characters)
-- Make it engaging and creative
-- Return ONLY the clue text, no explanations or numbering
-- Be creative and unique, but not too obscure, unless the difficulty warrants it to be more obscure
-- Use past tense if the word is a verb, present tense if it is a noun, and past participle if it is a verb ending in -ed or -ing
-- Same with plural nouns, use plural verbs and adjectives
-- Don't use the word itself in the clue
-- Feel free to refrence any form of media, celebrities,culture, history, whatever you seem fit, again bearing in mind the difficulty of the word and request.`;
-
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            contents: [{
-                parts: [{
-                    text: prompt
-                }]
-            }]
-        })
-    });
-    
-    if (!response.ok) {
-        const errorText = await response.text();
-        console.error('API Error:', response.status, errorText);
-        throw new Error(`API request failed: ${response.status} - ${errorText}`);
-    }
-    
-    const data = await response.json();
-    
-    // Handle response structure
-    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
-        const clue = data.candidates[0].content.parts[0].text.trim();
-        return clue;
-    } else {
-        console.error('Unexpected response structure:', data);
-        throw new Error('Unexpected API response format');
+    try {
+        const response = await fetch('/api/generate-clue', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ word, difficulty, misdirection })
+        });
+        
+        if (!response.ok) {
+            throw new Error(`API request failed: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        return data.clue;
+    } catch (error) {
+        console.error('Error:', error);
+        throw error;
     }
 }
 

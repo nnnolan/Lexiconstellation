@@ -259,23 +259,34 @@ patternInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Wordlist loading
-const fs = require('fs');
-const path = require('path');
+// Wordlist loading - WEB VERSION
+
 let wordList = [];
 let wordListLoaded = false;
 
 async function loadWordList() {
     try {
-        const wordListPath = path.join(__dirname, 'words.txt');
-        const data = fs.readFileSync(wordListPath, 'utf-8');
-        wordList = data.split('\n').map(line => line.trim().toUpperCase()).filter(word => word.length > 0 && !word.includes(';'));
+        // Fetch words.txt from server instead of reading from file system
+        const response = await fetch('/words.txt');
+        if (!response.ok) {
+            throw new Error(`Failed to load wordlist: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.text();
+        wordList = data.split('\n')
+            .map(line => line.trim().toUpperCase())
+            .filter(word => word.length > 0 && !word.includes(';'));
+        
         wordListLoaded = true;
         console.log(`Loaded ${wordList.length} words`);
     } catch (error) {
         console.error('Error loading wordlist:', error);
-        // Fallback: try to fetch from a URL if available
         wordListLoaded = false;
+        // Optionally show user-friendly error message
+        const resultsTitle = document.getElementById('results-title');
+        if (resultsTitle) {
+            resultsTitle.textContent = 'Error: Could not load word list. Please refresh the page.';
+        }
     }
 }
 
